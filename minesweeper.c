@@ -240,10 +240,8 @@ void SchachbrettZeichnen(int startx,int starty,int endex,int endey,char farbwahl
 
 int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHoehe,int Schwierigkeit)
 {
-	//Breite & Höhe können noch nicht im Array verw. werden (dynamic memory)
 	static int MinenArray[MAX][MAX];
 	int ix,iy,tmp=0;
-//	int* MinenPointer;
 	for(ix=0;ix<SpielbrettLaenge;ix++)
 	{
 		for(iy=0;iy<SpielbrettHoehe;iy++)
@@ -253,7 +251,6 @@ int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHo
 			{
 				MinenArray[iy][ix]=-1; 
 				gotoxy(startx+ix,starty+iy);
-//				printf("%s%c",KRED,207);
 			}
 			else MinenArray[iy][ix]=0;
 		}
@@ -486,8 +483,3 @@ void delay(unsigned int mseconds)
     clock_t goal = mseconds + clock();
     while (goal > clock());
 }
-//
-//DWORD WINAPI GetCurrentDirectory(
-//  _In_  DWORD  nBufferLength,
-//  _Out_ LPTSTR lpBuffer
-//);
