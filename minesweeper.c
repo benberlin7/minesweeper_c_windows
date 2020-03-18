@@ -1,4 +1,4 @@
-/*MINESWEEPER BY BEN HOFFMANN, ITW BERLIN 2020*/
+/*MINESWEEPER BY BEN HOFFMANN - benberlin7 via github*/
 
 /*BIBILIOTHEKEN EINBINDEN*/
 
@@ -240,7 +240,7 @@ void SchachbrettZeichnen(int startx,int starty,int endex,int endey,char farbwahl
 
 int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHoehe,int Schwierigkeit)
 {
-	//Breite & Höhe können noch nicht im Array verw. werden (dynamic memory)
+	//Breite & HÃ¶he kÃ¶nnen noch nicht im Array verw. werden (dynamic memory)
 	static int MinenArray[MAX][MAX];
 	int ix,iy,tmp=0;
 //	int* MinenPointer;
@@ -298,7 +298,7 @@ void HighscoreEintragen(int highscore,char *user)
 //	char temp;
 //	if((out=fopen("c:\\it9source\\minesweeper\\highscore.txt","a"))==NULL)
 //	{
-//		printf("Highscore Liste konnte nicht geöffnet werden");
+//		printf("Highscore Liste konnte nicht geÃ¶ffnet werden");
 //	}
 //	else
 //	{
@@ -365,7 +365,7 @@ void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbret
 								NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,x,y,VergleichsArrayPointer);
 							}
 							*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;
-							//Array wieder mit 0 füllen und Vergleichsarray überprüfen
+							//Array wieder mit 0 fÃ¼llen und Vergleichsarray Ã¼berprÃ¼fen
 									for(iy=0,entdeckt=0;iy<SpielbrettHoehe;iy++)
 									{
 										for(ix=0;ix<SpielbrettLaenge;ix++)
