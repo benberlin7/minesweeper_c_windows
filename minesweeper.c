@@ -25,14 +25,14 @@
 /*FUNKTIONEN DEKLARIEREN*/
 
 void gotoxy(int,int);
-void abfrageCursorTaste(int,int,int,int,int*,char,char,char,int*);
+float abfrageCursorTaste(int,int,int,int,int*,char,int,int,int*);
 void LegendeZeichnen(int,int);
-void SchachbrettZeichnen(int,int,int,int,char);
+void SchachbrettZeichnen(int,int,int,int,char,char);
 int *MinenBerechnen(int,int,int,int,int);
 int *UmfeldBerechnen(int,int,int*,int,int);
 void Aufdecken(int,int,int,int,int*);
 void NullAufdecken(int,int,int,int,int*,int,int,int*);
-void HighscoreEintragen(int,char*);
+void HighscoreEintragen(float,char*,char);
 void delay(unsigned int);
 void SiegesAnimation(int,int,int,int);
 void farbeWaehlen(int,int);
@@ -45,21 +45,24 @@ int x,y;
 
 int main(void)
 {
-	CONSOLE_CURSOR_INFO ci = {100,FALSE};
 	system("cls");
 	itwIntro(0,11);
 	delay(1000);
 	system("cls");
 	introEichhoernchen (0,7);
 	delay(1000);
+	
 	char Eingabe,tmp,Kontrollansicht=0,level=2;
 	int i,z;
 	int Spielbrett=8,schwierigkeit=4;
-	srand(time(NULL));
-	//int MinenArray[][]; 
 	int *MinenArrayPointer;
 	int *VergleichsArrayPointer;
 	int VergleichsArray[MAX][MAX];
+	char userName[25] = { "user" };
+	char *userNamePtr;
+	float score;
+	
+	srand(time(NULL));
 	
 	do
 	{
@@ -67,19 +70,21 @@ int main(void)
 	Eingabe=0;
 	system("cls");
 	MinesweeperMenu(0,10);
-	gotoxy(30,14);
-	printf("\n\n\t\t\t\t%sM I N E S W E E P E R",KYEL);
-	printf("\n\n\t\t\t\t%s[s] starten",KRED);
-	printf("\n\t\t\t\t[e] einstellungen");
-	printf("\n\t\t\t\t[ESC] beenden");
+	gotoxy(0,12);
+	printf("\n\n\t\t\t%sM I N E S W E E P E R",KYEL);
+	printf("\n\n\t\t\t%s[s] starten als %s",KRED,userName);
+	printf("\n\t\t\t[e] einstellungen (%dx%d,%d)",Spielbrett,Spielbrett,level);
+	printf("\n\t\t\t[h] highscores");
+	printf("\n\t\t\t[ESC] beenden");
 	Eingabe=getch();
 	if(Eingabe=='e')
 	{
 	do {
 	system("cls");
 	MinesweeperMenu(0,10);
-	gotoxy(30,16);
-	printf("\n\t\tEinstellungen");
+	gotoxy(0,12);
+	printf("\n\t\t%sE I N S T E L L U N G E N",KYEL);
+	printf("\n\n\t\t%s[u] Namen aendern (Aktuell %s)",KRED,userName);
 	printf("\n\t\t%s[f] Spielfeldgroesse aendern (Aktuell %2dx%2d)",KRED,Spielbrett,Spielbrett);
 	printf("\n\t\t%s[l] Schwierigkeitslevel aendern ",KRED);
 		switch(level)
@@ -93,6 +98,13 @@ int main(void)
 	printf("\n\t\t%s[k] Entwickler-Kontrollansicht zeigen (Aktuell %2d)",KRED,Kontrollansicht);
 	printf("\n\t\t%s[z] Zurueck",KRED);
 	Eingabe=getch();
+	if(Eingabe=='u')
+		{
+			for(i=0;userName[i]!='\0';i++)userName[i]='\0';
+			printf("\n\n\t\t\t\t%sNeuer Name : ",KYEL);
+			userNamePtr=eingabeText(24);
+			for(i=0;userNamePtr[i]!='\0';i++)userName[i]=userNamePtr[i];
+		}
 	if(Eingabe=='f')
 		{
 		printf("\n\n\t\t\t\t%sNeuer Wert : ",KYEL);
@@ -120,7 +132,33 @@ int main(void)
 				Kontrollansicht=Eingabe;
 			} else {printf(" Bitte zw. 1(an) und 0(aus) waehlen");getch();}
 		}
-	} while(Eingabe!='z');
+	} while(Eingabe!='z' && Eingabe!=13);
+	}
+	if(Eingabe=='h')
+	{
+		system("cls");
+		MinesweeperMenu(0,10);
+		FILE *in;
+		char temp;
+		float tempscore;
+		if((in=fopen("highscore.txt","r"))==NULL)
+		{
+			printf("Highscore Liste konnte nicht geöffnet werden");
+		}
+		else
+		{
+			gotoxy(30,9);
+			printf("%sHighscoreliste%s\n",KYEL,KRED);
+
+			while((temp=fgetc(in))!=EOF)
+			{
+			if(temp=='>')printf("\n\t\t\t\t");
+//			if(temp>=48 && temp<=57)
+			fputc(temp,stdout);
+			}
+		}
+		fclose(in);
+		getch();
 	}
 	if(Eingabe=='s')
 	{
@@ -130,12 +168,12 @@ int main(void)
 	gotoxy(0,0);
 	MinesweeperMenu(0,10);
 	LegendeZeichnen(1,2);
-	SchachbrettZeichnen(x,y,x+Spielbrett,y+Spielbrett,0);
+	SchachbrettZeichnen(x,y,x+Spielbrett,y+Spielbrett,0,0);
 	//Cursorposition am Anfang anzeigen
 		gotoxy(1,0);
 		printf("%s%c%d%s(%2d,%2d)",KCYN,x+50,8-(y-3),KGRA,x,y);
 	//AnzahlMinen ermitteln und Vergleichsarray erstellen
-	char AnzahlMinen=0,AnzahlFrei=0;
+	int AnzahlMinen=0,AnzahlFrei=0;
 	for(i=0;i<Spielbrett;i++)
 	{
 		for(z=0;z<Spielbrett;z++)
@@ -157,7 +195,12 @@ int main(void)
 	farbeWaehlen(0,0);
 	CONSOLE_CURSOR_INFO ci = {100,TRUE};
 
-	abfrageCursorTaste(x,y,Spielbrett,Spielbrett,MinenArrayPointer,Kontrollansicht,AnzahlMinen,AnzahlFrei,VergleichsArrayPointer);
+	score=abfrageCursorTaste(x,y,Spielbrett,Spielbrett,MinenArrayPointer,Kontrollansicht,AnzahlMinen,AnzahlFrei,VergleichsArrayPointer);
+	if(score>0) 
+	{
+		userNamePtr=&userName[0];
+		HighscoreEintragen(score+(level*15),userNamePtr,Kontrollansicht);
+	}
 	}
 	
 	//Ende Programm
@@ -177,7 +220,7 @@ void LegendeZeichnen(int startx,int starty)
 	gotoxy(startx,starty);
 	printf("%s[W]\nSuchen\n\n [A]\nMarkieren\n\n [ESC]\nZum Menue",KGRA);
 }
-void SchachbrettZeichnen(int startx,int starty,int endex,int endey,char farbwahl)
+void SchachbrettZeichnen(int startx,int starty,int endex,int endey,char farbwahl,char modus)
 {
 	int i,z;
 	printf("%s",KWHT);
@@ -212,11 +255,14 @@ void SchachbrettZeichnen(int startx,int starty,int endex,int endey,char farbwahl
 				gotoxy(startx+i,starty-2);
 				printf("%c",65+i);
 			}
-			//innere Elemente
-			for(z=0;z<endex-startx;z++)
+			if(modus==0)
 			{
-				gotoxy(startx+i,starty+z);
-				printf("%c",176);
+				//innere Elemente
+				for(z=0;z<endex-startx;z++)
+				{
+					gotoxy(startx+i,starty+z);
+					printf("%c",176);
+				}
 			}
 			}
 		if(i<endex-startx)
@@ -298,29 +344,33 @@ int *UmfeldBerechnen(int startx,int starty,int *MinenArrayPointer,int Spielbrett
 		return MinenArrayPointer;
 }
 
-void HighscoreEintragen(int highscore,char *user)
+void HighscoreEintragen(float score,char *user,char kontrolle)
 {
-//	FILE *out;
-//	char temp;
-//	if((out=fopen("c:\\it9source\\minesweeper\\highscore.txt","a"))==NULL)
-//	{
-//		printf("Highscore Liste konnte nicht geöffnet werden");
-//	}
-//	else
-//	{
-//		fputs(highscore,out);
-//		fputs(user,out);
-//		fputs("\n",out);			
-//	}
-//	fclose(out);
-//	return 0;
+	FILE *out;
+	char temp;
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+	if((out=fopen("highscore.txt","a"))==NULL)
+	{
+		printf("Highscore Liste konnte nicht geöffnet werden");
+	}
+	else
+	{
+		if(kontrolle==1) fprintf(out,"> %6.2f von %s am %d-%02d-%02d [DEV]",score,user,tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+		else fprintf(out,"> %6.2f von %s am %d-%02d-%02d",score,user,tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);	
+	}
+	fclose(out);
 }
 
-void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,int *MinenArrayPointer,char Kontrollansicht,char AnzahlMinen, char AnzahlFrei,int *VergleichsArrayPointer)
+float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,int *MinenArrayPointer,char Kontrollansicht,int AnzahlMinen, int AnzahlFrei,int *VergleichsArrayPointer)
 {
+	clock_t start, ende;
+	float time;
 	int temp,ix,iy,wert,zeit;
-	char entdeckt=0;
+	char entdeckt=0,sieg=0,niederlage=0;
+	float score;
 	
+	start = clock();
 	//Kontrollansicht
 	if(Kontrollansicht)
 	{
@@ -335,7 +385,7 @@ void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbret
 		}
 		gotoxy(x,y);
 	}
-	while(temp!=27)
+	while(temp!=27 && sieg!=1 && niederlage!=1)
 	{
 		if(kbhit())
 		{
@@ -357,7 +407,7 @@ void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbret
 				{
 					case 119: //W
 							wert=*(MinenArrayPointer+(y-starty)*MAX+(x-startx))+48;
-							if (wert==47) {printf("%s%c",KRED,207);Aufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer);}
+							if (wert==47) {printf("%s%c",KRED,207);Aufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer);getch();niederlage=1;entdeckt=0;}
 							if (wert>51) {printf("%s%c",KMAG,wert);*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;}
 							if (wert==51) {printf("%s%c",KYEL,wert);*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;}
 							if (wert==50) {printf("%s%c",KGRN,wert);*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;}
@@ -379,7 +429,18 @@ void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbret
 											if(*(MinenArrayPointer+(ix)*MAX+(iy))==-2) *(MinenArrayPointer+(ix)*MAX+(iy))=0;			
 										}
 									};
-							if(entdeckt==AnzahlFrei) SiegesAnimation(startx,starty,SpielbrettLaenge,SpielbrettHoehe);
+							if(entdeckt==AnzahlFrei) 
+								{
+									ende = clock();
+									SiegesAnimation(startx,starty,SpielbrettLaenge,SpielbrettHoehe);
+									time = ((float)(ende - start) / CLOCKS_PER_SEC * 1000) / 1000;
+									score = (1/(time/(AnzahlMinen)))*1000+(AnzahlFrei/1.5);
+									RahmenZeichnen(startx-2,SpielbrettHoehe+6,startx+30,SpielbrettHoehe+10,4);
+									gotoxy(startx-1,SpielbrettHoehe+6);
+									printf("%s\tAnzahl freie Felder : %d \n\t\tAnzahl Minen: %d \n\t\tZeit: %.2f Sekunden\n\t\tScore : %.1f",KYEL,AnzahlFrei,AnzahlMinen,time,score);
+									getch();
+									sieg=1;
+								}
 						break;			
 					case 97://A
 						{
@@ -387,8 +448,6 @@ void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbret
 							putch(8);
 							break;
 						} 
-					case 115:printf("%s%c%s",KRED,207,KWHT);putch(8);break; //S
-					case 100:printf("%s%c%s",KYEL,254,KWHT);putch(8);break; //D
 					case 32:putch(' ');putch(8);break; //ESC
 				}
 				//Kontrollansicht VglArray
@@ -408,6 +467,7 @@ void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbret
 			}
 		}
 	}
+	return score;
 }
 
 void Aufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,int *MinenArrayPointer)
@@ -485,7 +545,7 @@ void SiegesAnimation(startx,starty,SpielbrettLaenge,SpielbrettHoehe)
 	for(i=0;i<42;i++,f++)
 	{ 
 	if(f>8) f=0;
-	SchachbrettZeichnen(startx,starty,startx+SpielbrettLaenge,starty+SpielbrettHoehe,f);
+	SchachbrettZeichnen(startx,starty,startx+SpielbrettLaenge,starty+SpielbrettHoehe,f,1);
 	gotoxy(startx-1+i,SpielbrettHoehe+4);
 	printf("%s%c",KGRN,text[i]);
 	delay(100);
