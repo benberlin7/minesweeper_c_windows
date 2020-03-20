@@ -1,4 +1,4 @@
-/*MINESWEEPER BY BEN HOFFMANN - benberlin7 via github*/
+/*MINESWEEPER BY BEN HOFFMANN, ITW BERLIN 2020*/
 
 /*BIBILIOTHEKEN EINBINDEN*/
 
@@ -35,6 +35,7 @@ void NullAufdecken(int,int,int,int,int*,int,int,int*);
 void HighscoreEintragen(int,char*);
 void delay(unsigned int);
 void SiegesAnimation(int,int,int,int);
+void farbeWaehlen(int,int);
 
 /*GLOBALE VARIABLEN DEFINIEREN*/
 
@@ -44,7 +45,13 @@ int x,y;
 
 int main(void)
 {
+	CONSOLE_CURSOR_INFO ci = {100,FALSE};
 	system("cls");
+	itwIntro(0,11);
+	delay(1000);
+	system("cls");
+	introEichhoernchen (0,7);
+	delay(1000);
 	char Eingabe,tmp,Kontrollansicht=0,level=2;
 	int i,z;
 	int Spielbrett=8,schwierigkeit=4;
@@ -54,33 +61,27 @@ int main(void)
 	int *VergleichsArrayPointer;
 	int VergleichsArray[MAX][MAX];
 	
-	int bgcolor=0, fgcolor=4;
-	CONSOLE_CURSOR_INFO ci = {10,FALSE};
-	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE) , &ci);
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE) , bgcolor*16+fgcolor);
-	
 	do
 	{
 	x=15,y=3; //Cursorstartposition
 	Eingabe=0;
 	system("cls");
-	gotoxy(2,2);
-	printf("\t%sMinessweeper",KCYN);
-	printf("\n\tMenue");
-	printf("\n\n\t%s[s] Starten",KYEL);
-	printf("\n\n\t%s[e] Einstellungen",KYEL);
-//	printf("\n\n\t%s[h] Highscoreliste",KYEL);
-	printf("\n\n\t%s[ESC] Beenden",KYEL);
+	MinesweeperMenu(0,10);
+	gotoxy(30,14);
+	printf("\n\n\t\t\t\t%sM I N E S W E E P E R",KYEL);
+	printf("\n\n\t\t\t\t%s[s] starten",KRED);
+	printf("\n\t\t\t\t[e] einstellungen");
+	printf("\n\t\t\t\t[ESC] beenden");
 	Eingabe=getch();
 	if(Eingabe=='e')
 	{
 	do {
 	system("cls");
-	gotoxy(2,2);
-	printf("\t%sMinessweeper",KCYN);
-	printf("\n\tEinstellungen");
-	printf("\n\n\t%s[f] Spielfeldgroesse aendern (Aktuell %2dx%2d)",KYEL,Spielbrett,Spielbrett);
-	printf("\n\n\t%s[l] Schwierigkeitslevel aendern ",KYEL);
+	MinesweeperMenu(0,10);
+	gotoxy(30,16);
+	printf("\n\t\tEinstellungen");
+	printf("\n\t\t%s[f] Spielfeldgroesse aendern (Aktuell %2dx%2d)",KRED,Spielbrett,Spielbrett);
+	printf("\n\t\t%s[l] Schwierigkeitslevel aendern ",KRED);
 		switch(level)
 		{
 			case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break;
@@ -89,35 +90,35 @@ int main(void)
 			case 3:printf("(Aktuell schwer)");schwierigkeit=3;break;
 			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=2;break;
 		}
-	printf("\n\n\t%s[k] Entwickler-Kontrollansicht zeigen (Aktuell %2d)",KYEL,Kontrollansicht);
-	printf("\n\n\t%s[z] Zurueck",KYEL);
+	printf("\n\t\t%s[k] Entwickler-Kontrollansicht zeigen (Aktuell %2d)",KRED,Kontrollansicht);
+	printf("\n\t\t%s[z] Zurueck",KRED);
 	Eingabe=getch();
 	if(Eingabe=='f')
 		{
-		printf("\n\n\tNeuer Wert : ");
+		printf("\n\n\t\t\t\t%sNeuer Wert : ",KYEL);
 		Eingabe=eingabeZahl(2);
-		if(Eingabe>2 && Eingabe<64) 
+		if(Eingabe>2 && Eingabe<=64) 
 			{
 			Spielbrett=Eingabe;
-			} else printf("Bitte zw. 2 und 64 waehlen");
+			} else {printf(" Bitte zw. 2 und 64 waehlen");getch();}
 		}
 	if(Eingabe=='l')
 		{
-		printf("\n\n\tNeuer Wert (0 sehr leicht bis 4 sehr schwer) : ");
+		printf("\n\n\t\t%sNeuer Wert (0 sehr leicht bis 4 sehr schwer) : ",KYEL);
 		Eingabe=eingabeZahl(1);
 		if(Eingabe>=0 && Eingabe<=4) 
 			{
 			level=Eingabe;
-			} else printf("Bitte zw. 0 und 4 waehlen");
+			} else {printf(" Bitte zw. 0 und 4 waehlen");getch();}
 		}
 	if(Eingabe=='k')
 		{
-		printf("\n\n\tNeuer Wert : ");
+		printf("\n\n\t\t\t\t%sNeuer Wert : ",KYEL);
 		Eingabe=eingabeZahl(2);
 		if(Eingabe>=0 && Eingabe<=1) 
 			{
 				Kontrollansicht=Eingabe;
-			} else printf("Bitte zw. 1(an) und 0(aus) waehlen");
+			} else {printf(" Bitte zw. 1(an) und 0(aus) waehlen");getch();}
 		}
 	} while(Eingabe!='z');
 	}
@@ -126,6 +127,8 @@ int main(void)
 	system("cls");
 	MinenArrayPointer=MinenBerechnen(x,y,Spielbrett,Spielbrett,schwierigkeit);
 	MinenArrayPointer=UmfeldBerechnen(x,y,MinenArrayPointer,Spielbrett,Spielbrett);
+	gotoxy(0,0);
+	MinesweeperMenu(0,10);
 	LegendeZeichnen(1,2);
 	SchachbrettZeichnen(x,y,x+Spielbrett,y+Spielbrett,0);
 	//Cursorposition am Anfang anzeigen
@@ -151,12 +154,15 @@ int main(void)
 	}
 	VergleichsArrayPointer=&VergleichsArray[0][0];
 	gotoxy(x,y);
+	farbeWaehlen(0,0);
+	CONSOLE_CURSOR_INFO ci = {100,TRUE};
+
 	abfrageCursorTaste(x,y,Spielbrett,Spielbrett,MinenArrayPointer,Kontrollansicht,AnzahlMinen,AnzahlFrei,VergleichsArrayPointer);
 	}
 	
 	//Ende Programm
 	} while(Eingabe!=27);
-	gotoxy(1,11);
+	gotoxy(1,30);
 	return 0;
 }
 
@@ -240,8 +246,10 @@ void SchachbrettZeichnen(int startx,int starty,int endex,int endey,char farbwahl
 
 int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHoehe,int Schwierigkeit)
 {
+	//Breite & Höhe können noch nicht im Array verw. werden (dynamic memory)
 	static int MinenArray[MAX][MAX];
 	int ix,iy,tmp=0;
+//	int* MinenPointer;
 	for(ix=0;ix<SpielbrettLaenge;ix++)
 	{
 		for(iy=0;iy<SpielbrettHoehe;iy++)
@@ -251,6 +259,7 @@ int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHo
 			{
 				MinenArray[iy][ix]=-1; 
 				gotoxy(startx+ix,starty+iy);
+//				printf("%s%c",KRED,207);
 			}
 			else MinenArray[iy][ix]=0;
 		}
@@ -295,7 +304,7 @@ void HighscoreEintragen(int highscore,char *user)
 //	char temp;
 //	if((out=fopen("c:\\it9source\\minesweeper\\highscore.txt","a"))==NULL)
 //	{
-//		printf("Highscore Liste konnte nicht geÃ¶ffnet werden");
+//		printf("Highscore Liste konnte nicht geöffnet werden");
 //	}
 //	else
 //	{
@@ -311,7 +320,6 @@ void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbret
 {
 	int temp,ix,iy,wert,zeit;
 	char entdeckt=0;
-
 	
 	//Kontrollansicht
 	if(Kontrollansicht)
@@ -362,7 +370,7 @@ void abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbret
 								NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,x,y,VergleichsArrayPointer);
 							}
 							*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;
-							//Array wieder mit 0 fÃ¼llen und Vergleichsarray Ã¼berprÃ¼fen
+							//Array wieder mit 0 füllen und Vergleichsarray überprüfen
 									for(iy=0,entdeckt=0;iy<SpielbrettHoehe;iy++)
 									{
 										for(ix=0;ix<SpielbrettLaenge;ix++)
@@ -413,7 +421,7 @@ void Aufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,in
 				gotoxy(startx+ix,starty+iy);
 				if(*(MinenArrayPointer+iy*MAX+ix)==-1) printf("%s%c",KRED,207);
 				else printf("%s%d",KGRA,*(MinenArrayPointer+iy*MAX+ix));
-				delay(10);
+				delay(5);
 		}
 	}
 	for(ix=0;ix<15;ix++)
@@ -464,6 +472,13 @@ void NullAufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoeh
 		gotoxy(x,y);
 }
 
+void farbeWaehlen(int bgcolor,int fgcolor)
+{	
+	CONSOLE_CURSOR_INFO ci = {100,TRUE};
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE) , &ci);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE) , bgcolor*16+fgcolor);
+}
+
 void SiegesAnimation(startx,starty,SpielbrettLaenge,SpielbrettHoehe)
 {
 	char i,iy,f=0,text[42]={ "G E W O N N E N ! HERZLICHEN GLUECKWUNSCH" };
@@ -483,3 +498,8 @@ void delay(unsigned int mseconds)
     clock_t goal = mseconds + clock();
     while (goal > clock());
 }
+//
+//DWORD WINAPI GetCurrentDirectory(
+//  _In_  DWORD  nBufferLength,
+//  _Out_ LPTSTR lpBuffer
+//);
