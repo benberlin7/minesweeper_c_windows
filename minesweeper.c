@@ -6,6 +6,7 @@
 #include <conio.h>
 #include <windows.h>
 #include <time.h>
+#include <math.h>
 
 #include "myfunctions.c"
 
@@ -25,7 +26,7 @@
 /*FUNKTIONEN DEKLARIEREN*/
 
 void gotoxy(int,int);
-float abfrageCursorTaste(int,int,int,int,int*,char,int,int,int*);
+float abfrageCursorTaste(int,int,int,int,int*,char,int,int,int*,int);
 void LegendeZeichnen(int,int);
 void SchachbrettZeichnen(int,int,int,int,char,char);
 int *MinenBerechnen(int,int,int,int,int);
@@ -36,6 +37,7 @@ void HighscoreEintragen(float,char*,char);
 void delay(unsigned int);
 void SiegesAnimation(int,int,int,int);
 void farbeWaehlen(int,int);
+int HighscoreErmitteln(char);
 
 /*GLOBALE VARIABLEN DEFINIEREN*/
 
@@ -45,6 +47,7 @@ int x,y;
 
 int main(void)
 {
+	HighscoreErmitteln(0);
 	system("cls");
 	itwIntro(0,11);
 	delay(1000);
@@ -52,9 +55,9 @@ int main(void)
 	introEichhoernchen (0,7);
 	delay(1000);
 	
-	char Eingabe,tmp,Kontrollansicht=0,level=2;
+	char Eingabe,tmp,Kontrollansicht=0,level=0;
 	int i,z;
-	int Spielbrett=8,schwierigkeit=4;
+	int Spielbrett=8,schwierigkeit=10,highscore=0;
 	int *MinenArrayPointer;
 	int *VergleichsArrayPointer;
 	int VergleichsArray[MAX][MAX];
@@ -136,29 +139,7 @@ int main(void)
 	}
 	if(Eingabe=='h')
 	{
-		system("cls");
-		MinesweeperMenu(0,10);
-		FILE *in;
-		char temp;
-		float tempscore;
-		if((in=fopen("highscore.txt","r"))==NULL)
-		{
-			printf("Highscore Liste konnte nicht geöffnet werden");
-		}
-		else
-		{
-			gotoxy(30,9);
-			printf("%sHighscoreliste%s\n",KYEL,KRED);
-
-			while((temp=fgetc(in))!=EOF)
-			{
-			if(temp=='>')printf("\n\t\t\t\t");
-//			if(temp>=48 && temp<=57)
-			fputc(temp,stdout);
-			}
-		}
-		fclose(in);
-		getch();
+		highscore = HighscoreErmitteln(1);
 	}
 	if(Eingabe=='s')
 	{
@@ -192,14 +173,12 @@ int main(void)
 	}
 	VergleichsArrayPointer=&VergleichsArray[0][0];
 	gotoxy(x,y);
-	farbeWaehlen(0,0);
-	CONSOLE_CURSOR_INFO ci = {100,TRUE};
 
-	score=abfrageCursorTaste(x,y,Spielbrett,Spielbrett,MinenArrayPointer,Kontrollansicht,AnzahlMinen,AnzahlFrei,VergleichsArrayPointer);
+	score=abfrageCursorTaste(x,y,Spielbrett,Spielbrett,MinenArrayPointer,Kontrollansicht,AnzahlMinen,AnzahlFrei,VergleichsArrayPointer,highscore);
 	if(score>0) 
 	{
 		userNamePtr=&userName[0];
-		HighscoreEintragen(score+(level*15),userNamePtr,Kontrollansicht);
+		HighscoreEintragen(score,userNamePtr,Kontrollansicht);
 	}
 	}
 	
@@ -356,13 +335,48 @@ void HighscoreEintragen(float score,char *user,char kontrolle)
 	}
 	else
 	{
-		if(kontrolle==1) fprintf(out,"> %6.2f von %s am %d-%02d-%02d [DEV]",score,user,tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-		else fprintf(out,"> %6.2f von %s am %d-%02d-%02d",score,user,tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);	
+		if(kontrolle==1) fprintf(out,"> %6.0f [DEV] %s  (%d-%02d-%02d) ",score,user,tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+		else fprintf(out,"> %6.0f | %s (%d-%02d-%02d)",score,user,tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);	
 	}
 	fclose(out);
 }
 
-float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,int *MinenArrayPointer,char Kontrollansicht,int AnzahlMinen, int AnzahlFrei,int *VergleichsArrayPointer)
+int HighscoreErmitteln(char modus)
+{
+	if(modus==1)system("cls");
+	if(modus==1)MinesweeperMenu(0,10);
+	FILE *in;
+	char temp,i=0,z=0;
+	int tempscore[8],zwischen=0,multiplikator=1,highscore=0;
+	
+	if((in=fopen("highscore.txt","r"))==NULL)
+	{
+		printf("Highscore Liste konnte nicht geöffnet werden");
+	}
+	else
+	{
+		gotoxy(30,9);
+		if(modus==1)printf("%sHighscoreliste%s\n",KYEL,KRED);
+		while((temp=fgetc(in))!=EOF)
+		{
+			if(temp=='>') {if(modus==1)printf("\n\t\t\t");for(z=0;tempscore[z]!='\0';z++) tempscore[z]=0;}
+			if(temp>=48 && temp<=57) {tempscore[i]=temp-48;i++;}
+			if(temp=='|') 
+			{
+				while(i>0){zwischen+=(tempscore[i-1]*multiplikator);multiplikator*=10;i--;} 
+				if(zwischen>=highscore) highscore=zwischen ;
+			}
+			if(temp==')') {while(i<0){tempscore[i]='\0';i--;};zwischen=0;multiplikator=1;i=0;}
+			if(modus==1)fputc(temp,stdout);
+			}
+			if(modus==1)printf("\n\n\t\t\t%sHighscore %d",KMAG,highscore);
+		}
+		fclose(in);
+		if(modus==1)getch();
+		return highscore;
+}
+
+float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,int *MinenArrayPointer,char Kontrollansicht,int AnzahlMinen, int AnzahlFrei,int *VergleichsArrayPointer,int highscore)
 {
 	clock_t start, ende;
 	float time;
@@ -374,7 +388,7 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 	//Kontrollansicht
 	if(Kontrollansicht)
 	{
-		gotoxy(0,starty+SpielbrettHoehe+5);
+		gotoxy(0,starty+SpielbrettHoehe+1);
 		for(ix=0;ix<SpielbrettLaenge;ix++) 
 		{
 			printf("\n");
@@ -429,15 +443,16 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 											if(*(MinenArrayPointer+(ix)*MAX+(iy))==-2) *(MinenArrayPointer+(ix)*MAX+(iy))=0;			
 										}
 									};
-							if(entdeckt==AnzahlFrei) 
+							if(entdeckt==AnzahlFrei && !niederlage) 
 								{
 									ende = clock();
 									SiegesAnimation(startx,starty,SpielbrettLaenge,SpielbrettHoehe);
 									time = ((float)(ende - start) / CLOCKS_PER_SEC * 1000) / 1000;
-									score = (1/(time/(AnzahlMinen)))*1000+(AnzahlFrei/1.5);
-									RahmenZeichnen(startx-2,SpielbrettHoehe+6,startx+30,SpielbrettHoehe+10,4);
+									score = round((1/((time+10)/(AnzahlMinen)))*1000+(AnzahlFrei/1.5));
+									RahmenZeichnen(startx-2,SpielbrettHoehe+6,startx+30,SpielbrettHoehe+11,4);
 									gotoxy(startx-1,SpielbrettHoehe+6);
-									printf("%s\tAnzahl freie Felder : %d \n\t\tAnzahl Minen: %d \n\t\tZeit: %.2f Sekunden\n\t\tScore : %.1f",KYEL,AnzahlFrei,AnzahlMinen,time,score);
+									printf("%s\tAnzahl freie Felder : %d \n\t\tAnzahl Minen: %d \n\t\tZeit: %.2f Sekunden\n\t\tScore : %.0f",KYEL,AnzahlFrei,AnzahlMinen,time,score);
+									if(score>highscore) printf("\n\t\t%s NEUE HIGHSCORE!",KMAG); else printf("\n\t\tAktuelle Highscore : %d", highscore);
 									getch();
 									sieg=1;
 								}
@@ -453,7 +468,7 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 				//Kontrollansicht VglArray
 				if(Kontrollansicht)
 				{
-				gotoxy(0,starty+SpielbrettHoehe+SpielbrettHoehe+6);
+				gotoxy(0,starty+SpielbrettHoehe+SpielbrettHoehe+2);
 				for(ix=0;ix<SpielbrettLaenge;ix++) 
 				{
 				printf("\n");
