@@ -47,7 +47,6 @@ int x,y;
 
 int main(void)
 {
-	HighscoreErmitteln(0);
 	system("cls");
 	itwIntro(0,11);
 	delay(1000);
@@ -71,6 +70,7 @@ int main(void)
 	{
 	x=15,y=3; //Cursorstartposition
 	Eingabe=0;
+	highscore=HighscoreErmitteln(0);
 	system("cls");
 	MinesweeperMenu(0,10);
 	gotoxy(0,12);
