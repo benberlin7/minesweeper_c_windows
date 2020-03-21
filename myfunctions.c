@@ -1,6 +1,7 @@
 void RahmenZeichnen(int,int,int,int,int);
 char* eingabeText(int);
 void gotoxy(int,int);
+void delay(unsigned int);
 
 //gotoxy
 void gotoxy(int x, int y)
@@ -9,6 +10,13 @@ void gotoxy(int x, int y)
   coord.X = x;
   coord.Y = y;
   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+//Delay (Eigene)
+void delay(unsigned int mseconds)
+{
+    clock_t goal = mseconds + clock();
+    while (goal > clock());
 }
 
 //itwIntro (Eigene)
