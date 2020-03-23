@@ -80,8 +80,8 @@ int main(void)
 			case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break; //10% Minen
 			case 1:printf("(Aktuell leicht)");schwierigkeit=8;break; //12,5%
 			case 2:printf("(Aktuell normal)");schwierigkeit=6;break; //17%
-			case 3:printf("(Aktuell schwer)");schwierigkeit=5;break; //20% 
-			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=4;break; //25%
+			case 3:printf("(Aktuell schwer)");schwierigkeit=4;break; //25% 
+			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=3;break; //33%
 		}
 	printf("\n\t\t\t[h] highscores");
 	printf("\n\t\t\t[ESC] beenden");
@@ -101,8 +101,8 @@ int main(void)
 			case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break; //10% Minen
 			case 1:printf("(Aktuell leicht)");schwierigkeit=8;break; //12,5%
 			case 2:printf("(Aktuell normal)");schwierigkeit=6;break; //17%
-			case 3:printf("(Aktuell schwer)");schwierigkeit=5;break; //20% 
-			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=4;break; //25%
+			case 3:printf("(Aktuell schwer)");schwierigkeit=4;break; //25% 
+			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=3;break; //33%
 		}
 	printf("\n\t\t%s[n] Erste Null automatisch aufdecken (Aktuell ",KRED,ErsteNull);
 		switch(ErsteNull)
