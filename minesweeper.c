@@ -52,9 +52,9 @@ int main(void)
 	introEichhoernchen (0,7);
 	delay(1000);
 	
-	char Eingabe,tmp,Kontrollansicht=0,level=0,ErsteNull=1;
+	char Eingabe,tmp,Kontrollansicht=0,level=2,ErsteNull=1;
 	int i,z;
-	int Spielbrett=16,schwierigkeit=10,highscore=0;
+	int Spielbrett=12,schwierigkeit=6,highscore=0;
 	int *MinenArrayPointer;
 	int *VergleichsArrayPointer;
 	int VergleichsArray[MAX][MAX];
@@ -77,11 +77,11 @@ int main(void)
 	printf("\n\t\t\t[e] einstellungen (%dx%d,",Spielbrett,Spielbrett);
 			switch(level)
 		{
-			case 0:printf("sehr leicht)");schwierigkeit=10;break;
-			case 1:printf("leicht)");schwierigkeit=5;break;
-			case 2:printf("normal)");schwierigkeit=4;break;
-			case 3:printf("schwer)");schwierigkeit=3;break;
-			case 4:printf("sehr schwer)");schwierigkeit=2;break;
+			case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break; //10% Minen
+			case 1:printf("(Aktuell leicht)");schwierigkeit=8;break; //12,5%
+			case 2:printf("(Aktuell normal)");schwierigkeit=6;break; //17%
+			case 3:printf("(Aktuell schwer)");schwierigkeit=5;break; //20% 
+			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=4;break; //25%
 		}
 	printf("\n\t\t\t[h] highscores");
 	printf("\n\t\t\t[ESC] beenden");
@@ -98,11 +98,11 @@ int main(void)
 	printf("\n\t\t%s[l] Schwierigkeitslevel aendern ",KRED);
 		switch(level)
 		{
-			case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break;
-			case 1:printf("(Aktuell leicht)");schwierigkeit=5;break;
-			case 2:printf("(Aktuell normal)");schwierigkeit=4;break;
-			case 3:printf("(Aktuell schwer)");schwierigkeit=3;break;
-			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=2;break;
+			case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break; //10% Minen
+			case 1:printf("(Aktuell leicht)");schwierigkeit=8;break; //12,5%
+			case 2:printf("(Aktuell normal)");schwierigkeit=6;break; //17%
+			case 3:printf("(Aktuell schwer)");schwierigkeit=5;break; //20% 
+			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=4;break; //25%
 		}
 	printf("\n\t\t%s[n] Erste Null automatisch aufdecken (Aktuell ",KRED,ErsteNull);
 		switch(ErsteNull)
