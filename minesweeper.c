@@ -300,6 +300,14 @@ int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHo
 	//Breite & Höhe können noch nicht im Array verw. werden (dynamic memory)
 	static int MinenArray[MAX][MAX];
 	int ix,iy,tmp=0;
+	//Minenarray komplett leeren um zufällige Fehler in den Randbereichen zu unterbinden
+	for(ix=0;ix<MAX;ix++)
+	{
+		for(iy=0;iy<MAX;iy++)
+		{
+			MinenArray[iy][ix]=0; 
+		}
+	}
 //	int* MinenPointer;
 	for(ix=0;ix<SpielbrettLaenge;ix++)
 	{
