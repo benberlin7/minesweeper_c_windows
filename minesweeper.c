@@ -26,15 +26,15 @@
 /*FUNKTIONEN DEKLARIEREN*/
 
 void gotoxy(int,int);
-float abfrageCursorTaste(int,int,int,int,int*,char,int,int,int*,int,char);
+float abfrageCursorTaste(int,int,int,int*,char,int,int,int*,int,char);
 void LegendeZeichnen(int,int);
 void SchachbrettZeichnen(int,int,int,int,char,char);
-int *MinenBerechnen(int,int,int,int,int);
-int *UmfeldBerechnen(int,int,int*,int,int);
-void Aufdecken(int,int,int,int,int*);
-void NullAufdecken(int,int,int,int,int*,int,int,int*);
+int *MinenBerechnen(int,int,int,int);
+int *UmfeldBerechnen(int,int,int*,int);
+void Aufdecken(int,int,int,int*);
+void NullAufdecken(int,int,int,int*,int,int,int*);
 void HighscoreEintragen(float,char*,char);
-void SiegesAnimation(int,int,int,int);
+void SiegesAnimation(int,int,int);
 int HighscoreErmitteln(char);
 
 /*GLOBALE VARIABLEN DEFINIEREN*/
@@ -70,137 +70,143 @@ int main(void)
 	x=15,y=3; //Cursorstartposition
 	Eingabe=0;
 	system("cls");
-	MinesweeperMenu(0,10);
+	//Menü zeichnen
+	MinesweeperMenu(0,10); //Hintergrundgrafik generieren
 	gotoxy(0,12);
 	printf("\n\n\t\t\t%sM I N E S W E E P E R",KYEL);
 	printf("\n\n\t\t\t%s[s] starten als %s",KRED,userName);
 	printf("\n\t\t\t[e] einstellungen (%dx%d,",Spielbrett,Spielbrett);
 			switch(level)
 		{
-			case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break; //10% Minen
-			case 1:printf("(Aktuell leicht)");schwierigkeit=8;break; //12,5%
-			case 2:printf("(Aktuell normal)");schwierigkeit=6;break; //17%
-			case 3:printf("(Aktuell schwer)");schwierigkeit=4;break; //25% 
-			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=3;break; //33%
+			case 0:printf("Aktuell sehr leicht)");schwierigkeit=10;break; //10% Minen
+			case 1:printf("Aktuell leicht)");schwierigkeit=8;break; //12,5%
+			case 2:printf("Aktuell normal)");schwierigkeit=6;break; //17%
+			case 3:printf("Aktuell schwer)");schwierigkeit=4;break; //25% 
+			case 4:printf("Aktuell sehr schwer)");schwierigkeit=3;break; //33%
 		}
 	printf("\n\t\t\t[h] highscores");
 	printf("\n\t\t\t[ESC] beenden");
 	Eingabe=getch();
-	if(Eingabe=='e')
+	if(Eingabe=='e') //Einstellungen
 	{
-	do {
-	system("cls");
-	MinesweeperMenu(0,10);
-	gotoxy(0,12);
-	printf("\n\t\t%sE I N S T E L L U N G E N",KYEL);
-	printf("\n\n\t\t%s[u] Namen aendern (Aktuell %s)",KRED,userName);
-	printf("\n\t\t%s[f] Spielfeldgroesse aendern (Aktuell %2dx%2d)",KRED,Spielbrett,Spielbrett);
-	printf("\n\t\t%s[l] Schwierigkeitslevel aendern ",KRED);
-		switch(level)
-		{
-			case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break; //10% Minen
-			case 1:printf("(Aktuell leicht)");schwierigkeit=8;break; //12,5%
-			case 2:printf("(Aktuell normal)");schwierigkeit=6;break; //17%
-			case 3:printf("(Aktuell schwer)");schwierigkeit=4;break; //25% 
-			case 4:printf("(Aktuell sehr schwer)");schwierigkeit=3;break; //33%
-		}
-	printf("\n\t\t%s[n] Erste Null automatisch aufdecken (Aktuell ",KRED,ErsteNull);
-		switch(ErsteNull)
-		{
-			case 0:printf("aus)");break;
-			case 1:printf("ein)");break;
-		}
-	printf("\n\t\t%s[k] Entwickleransicht zeigen (Aktuell ",KRED,Kontrollansicht);
-		switch(Kontrollansicht)
-		{
-			case 0:printf("aus)");break;
-			case 1:printf("ein)");break;
-		}
-	printf("\n\t\t%s[z] Zurueck",KRED);
-	Eingabe=getch();
-	if(Eingabe=='u')
-		{
-			for(i=0;userName[i]!='\0';i++)userName[i]='\0';
-			printf("\n\n\t\t\t\t%sNeuer Name : ",KYEL);
-			userNamePtr=eingabeText(24);
-			for(i=0;userNamePtr[i]!='\0';i++)userName[i]=userNamePtr[i];
-		}
-	if(Eingabe=='f')
-		{
-		printf("\n\n\t\t\t\t%sNeuer Wert : ",KYEL);
-		Eingabe=eingabeZahl(2);
-		if(Eingabe>2 && Eingabe<=64) 
+		do {
+		system("cls");
+		MinesweeperMenu(0,10);
+		gotoxy(0,12);
+		printf("\n\t\t%sE I N S T E L L U N G E N",KYEL);
+		printf("\n\n\t\t%s[u] Namen aendern (Aktuell %s)",KRED,userName);
+		printf("\n\t\t%s[f] Spielfeldgroesse aendern (Aktuell %2dx%2d)",KRED,Spielbrett,Spielbrett);
+		printf("\n\t\t%s[l] Schwierigkeitslevel aendern ",KRED);
+			switch(level)
 			{
-			Spielbrett=Eingabe;
-			} else {printf(" Bitte zw. 2 und 64 waehlen");getch();}
-		}
-	if(Eingabe=='l')
-		{
-		printf("\n\n\t\t%sNeuer Wert (0 sehr leicht bis 4 sehr schwer) : ",KYEL);
-		Eingabe=eingabeZahl(1);
-		if(Eingabe>=0 && Eingabe<=4) 
+				case 0:printf("(Aktuell sehr leicht)");schwierigkeit=10;break; //10% Minen
+				case 1:printf("(Aktuell leicht)");schwierigkeit=8;break; //12,5%
+				case 2:printf("(Aktuell normal)");schwierigkeit=6;break; //17%
+				case 3:printf("(Aktuell schwer)");schwierigkeit=4;break; //25% 
+				case 4:printf("(Aktuell sehr schwer)");schwierigkeit=3;break; //33%
+			}
+		printf("\n\t\t%s[n] Erste Null automatisch aufdecken (Aktuell ",KRED,ErsteNull);
+			switch(ErsteNull)
 			{
-			level=Eingabe;
-			} else {printf(" Bitte zw. 0 und 4 waehlen");getch();}
-		}
-	if(Eingabe=='k')
-		{
-		printf("\n\n\t\t\t%sHinweis - ist dieser Modus aktiv wird Ihre Punktzahl nicht gewertet\n\t\t\tNeuer Wert : ",KYEL);
-		Eingabe=eingabeZahl(1);
-		if(Eingabe>=0 && Eingabe<=1) 
+				case 0:printf("aus)");break;
+				case 1:printf("ein)");break;
+			}
+		printf("\n\t\t%s[k] Entwickleransicht zeigen (Aktuell ",KRED,Kontrollansicht);
+			switch(Kontrollansicht)
 			{
-				Kontrollansicht=Eingabe;
-			} else {printf(" Bitte zw. 1(an) und 0(aus) waehlen");getch();}
-		}
-	if(Eingabe=='n')
-		{
-		printf("\n\n\t\t\t\t%sNeuer Wert : ",KYEL);
-		Eingabe=eingabeZahl(1);
-		if(Eingabe>=0 && Eingabe<=1) 
+				case 0:printf("aus)");break;
+				case 1:printf("ein)");break;
+			}
+		printf("\n\t\t%s[z] Zurueck",KRED);
+		Eingabe=getch();
+		if(Eingabe=='u')
 			{
-				ErsteNull=Eingabe;
-			} else {printf(" Bitte zw. 1(an) und 0(aus) waehlen");getch();}
-		}		
+				for(i=0;userName[i]!='\0';i++)userName[i]='\0';
+				printf("\n\n\t\t\t\t%sNeuer Name : ",KYEL);
+				userNamePtr=eingabeText(24);
+				for(i=0;userNamePtr[i]!='\0';i++)userName[i]=userNamePtr[i];
+			}
+		if(Eingabe=='f')
+			{
+			printf("\n\n\t\t\t\t%sNeuer Wert : ",KYEL);
+			Eingabe=eingabeZahl(2);
+			if(Eingabe>2 && Eingabe<=64) 
+				{
+				Spielbrett=Eingabe;
+				} else {printf(" Bitte zw. 2 und 64 waehlen");getch();}
+			}
+		if(Eingabe=='l')
+			{
+			printf("\n\n\t\t%sNeuer Wert (0 sehr leicht bis 4 sehr schwer) : ",KYEL);
+			Eingabe=eingabeZahl(1);
+			if(Eingabe>=0 && Eingabe<=4) 
+				{
+				level=Eingabe;
+				} else {printf(" Bitte zw. 0 und 4 waehlen");getch();}
+			}
+		if(Eingabe=='k')
+			{
+			printf("\n\n\t\t\t%sHinweis - ist dieser Modus aktiv wird Ihre Punktzahl nicht gewertet\n\t\t\tNeuer Wert : ",KYEL);
+			Eingabe=eingabeZahl(1);
+			if(Eingabe>=0 && Eingabe<=1) 
+				{
+					Kontrollansicht=Eingabe;
+				} else {printf(" Bitte zw. 1(an) und 0(aus) waehlen");getch();}
+			}
+		if(Eingabe=='n')
+			{
+			printf("\n\n\t\t\t\t%sNeuer Wert : ",KYEL);
+			Eingabe=eingabeZahl(1);
+			if(Eingabe>=0 && Eingabe<=1) 
+				{
+					ErsteNull=Eingabe;
+				} else {printf(" Bitte zw. 1(an) und 0(aus) waehlen");getch();}
+			}		
 	} while(Eingabe!='z' && Eingabe!=13);
 	}
-	if(Eingabe=='h')
+	
+	if(Eingabe=='h') //Highscore
 	{
 		highscore = HighscoreErmitteln(1);
 	}
-	if(Eingabe=='s')
+	
+	if(Eingabe=='s') //Programm start
 	{
 	system("cls");
-	MinenArrayPointer=MinenBerechnen(x,y,Spielbrett,Spielbrett,schwierigkeit);
-	MinenArrayPointer=UmfeldBerechnen(x,y,MinenArrayPointer,Spielbrett,Spielbrett);
+	//Minenarray erstellen und das Umfeld berechnen
+	MinenArrayPointer=MinenBerechnen(x,y,Spielbrett,schwierigkeit);
+	MinenArrayPointer=UmfeldBerechnen(x,y,MinenArrayPointer,Spielbrett);
+	//Vergleichsarray erstellen zur fehlerfreien Überprüfung der Siegbedingung
+		int AnzahlMinen=0,AnzahlFrei=0;
+		for(i=0;i<Spielbrett;i++)
+		{
+			for(z=0;z<Spielbrett;z++)
+			{
+				if(*(MinenArrayPointer+(i)*MAX+(z))==-1) 
+				{
+					AnzahlMinen++;
+					VergleichsArray[z][i]=*(MinenArrayPointer+(i)*MAX+(z));
+				}
+				else 
+				{	
+					AnzahlFrei++;
+					VergleichsArray[z][i]=0;
+				}
+			}
+		}
+		VergleichsArrayPointer=&VergleichsArray[0][0];
+	//Grafische Elemente generieren
 	gotoxy(0,0);
 	MinesweeperMenu(0,10);
 	LegendeZeichnen(1,2);
 	SchachbrettZeichnen(x,y,x+Spielbrett,y+Spielbrett,0,0);
-	//Cursorposition am Anfang anzeigen
-		gotoxy(1,0);
-		printf("%s%c%d%s(%2d,%2d)",KCYN,x+50,8-(y-3),KGRA,x,y);
-	//AnzahlMinen ermitteln und Vergleichsarray erstellen
-	int AnzahlMinen=0,AnzahlFrei=0;
-	for(i=0;i<Spielbrett;i++)
-	{
-		for(z=0;z<Spielbrett;z++)
-		{
-			if(*(MinenArrayPointer+(i)*MAX+(z))==-1) 
-			{
-				AnzahlMinen++;
-				VergleichsArray[z][i]=*(MinenArrayPointer+(i)*MAX+(z));
-			}
-			else 
-			{	
-				AnzahlFrei++;
-				VergleichsArray[z][i]=0;
-			}
-		}
-	}
-	VergleichsArrayPointer=&VergleichsArray[0][0];
+	//Cursorposition in der Legende anzeigen
+	gotoxy(1,0);
+	printf("%s%c%d%s(%2d,%2d)",KCYN,x+50,8-(y-3),KGRA,x,y);
+	//Cursor zum Start bewegen und dynamische Abfrage starten
 	gotoxy(x,y);
-
-	score=abfrageCursorTaste(x,y,Spielbrett,Spielbrett,MinenArrayPointer,Kontrollansicht,AnzahlMinen,AnzahlFrei,VergleichsArrayPointer,highscore,ErsteNull);
+	score=abfrageCursorTaste(x,y,Spielbrett,MinenArrayPointer,Kontrollansicht,AnzahlMinen,AnzahlFrei,VergleichsArrayPointer,highscore,ErsteNull);
+	//Ggfs. Punktzahl eintragen
 	if(score>0) 
 	{
 		userNamePtr=&userName[0];
@@ -295,7 +301,7 @@ void SchachbrettZeichnen(int startx,int starty,int endex,int endey,char farbwahl
 	printf("%c",188);
 }
 
-int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHoehe,int Schwierigkeit)
+int *MinenBerechnen(int startx,int starty, int Spielbrett,int Schwierigkeit)
 {
 	//Breite & Höhe können noch nicht im Array verw. werden (dynamic memory)
 	static int MinenArray[MAX][MAX];
@@ -309,9 +315,9 @@ int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHo
 		}
 	}
 //	int* MinenPointer;
-	for(ix=0;ix<SpielbrettLaenge;ix++)
+	for(ix=0;ix<Spielbrett;ix++)
 	{
-		for(iy=0;iy<SpielbrettHoehe;iy++)
+		for(iy=0;iy<Spielbrett;iy++)
 		{
 			tmp=rand() % Schwierigkeit;
 			if(tmp==1) 
@@ -327,18 +333,18 @@ int *MinenBerechnen(int startx,int starty, int SpielbrettLaenge,int SpielbrettHo
 	return MinenPointer;
 }
 
-int *UmfeldBerechnen(int startx,int starty,int *MinenArrayPointer,int SpielbrettLaenge,int SpielbrettHoehe)
+int *UmfeldBerechnen(int startx,int starty,int *MinenArrayPointer,int Spielbrett)
 {
 		char tmp;
 		int ix,iy,ivglx,ivgly;
 		//Erweitertes Array erstellen
-		for(iy=0;iy<SpielbrettHoehe;iy++) 
+		for(iy=0;iy<Spielbrett;iy++) 
 		{
-			for(ix=0;ix<SpielbrettLaenge;ix++) 
+			for(ix=0;ix<Spielbrett;ix++) 
 			{
 				if(*(MinenArrayPointer+iy*MAX+ix)!=-1) //generelle Abbruchbedingung
 				{
-					if(ix>=0 && iy>=0 && iy<SpielbrettHoehe && ix<SpielbrettLaenge)
+					if(ix>=0 && iy>=0 && iy<Spielbrett && ix<Spielbrett)
 						{	
 							gotoxy(startx+ix,starty+iy);
 							for(ivgly=-1,tmp=0;ivgly<2;ivgly++) //Abgleich mit umliegenden Feldern
@@ -410,7 +416,7 @@ int HighscoreErmitteln(char modus)
 		return highscore;
 }
 
-float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,int *MinenArrayPointer,char Kontrollansicht,int AnzahlMinen, int AnzahlFrei,int *VergleichsArrayPointer,int highscore,char ErsteNull)
+float abfrageCursorTaste(int startx,int starty,int Spielbrett,int *MinenArrayPointer,char Kontrollansicht,int AnzahlMinen, int AnzahlFrei,int *VergleichsArrayPointer,int highscore,char ErsteNull)
 {
 	clock_t start, ende;
 	float time;
@@ -423,11 +429,11 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 	//Kontrollansicht
 
 	{
-		gotoxy(startx,starty+SpielbrettHoehe+12);
-		for(ix=0;ix<SpielbrettLaenge;ix++) 
+		gotoxy(startx,starty+Spielbrett+12);
+		for(ix=0;ix<Spielbrett;ix++) 
 		{
 			printf("\n");
-			for(iy=0;iy<SpielbrettHoehe;iy++) 
+			for(iy=0;iy<Spielbrett;iy++) 
 			{
 					if(Kontrollansicht) 
 					{
@@ -442,17 +448,17 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 					};
 			}
 		}
-		if(ErsteNull) NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpix+startx,tmpiy+starty,VergleichsArrayPointer);
+		if(ErsteNull) NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpix+startx,tmpiy+starty,VergleichsArrayPointer);
 		//Array wieder mit 0 füllen und Vergleichsarray überprüfen (entdeckte Felder zählen)
-				for(iy=0,entdeckt=0;iy<SpielbrettHoehe;iy++)
+				for(iy=0,entdeckt=0;iy<Spielbrett;iy++)
 					{
-						for(ix=0;ix<SpielbrettLaenge;ix++)
+						for(ix=0;ix<Spielbrett;ix++)
 						{
 							if(*(VergleichsArrayPointer+(ix)*MAX+(iy))==1) entdeckt++;
 							if(*(MinenArrayPointer+(ix)*MAX+(iy))==-2) *(MinenArrayPointer+(ix)*MAX+(iy))=0;			
 						}
 					};
-		gotoxy(1,0);printf("%s%c%d%s(noch %d)",KCYN,x+50,SpielbrettHoehe-(y-starty),KGRA,AnzahlFrei-entdeckt);
+		gotoxy(1,0);printf("%s%c%d%s(noch %d)",KCYN,x+50,Spielbrett-(y-starty),KGRA,AnzahlFrei-entdeckt);
 		gotoxy(x,y);
 	}
 	while(temp!=27 && sieg!=1 && niederlage!=1)
@@ -465,10 +471,10 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 				temp=getch();
 				switch(temp)
 				{
-					case 80:if(y<starty+SpielbrettHoehe-1){y++;gotoxy(1,0);printf("%s%c%d%s(noch %3d)",KCYN,x+50,SpielbrettHoehe-(y-starty),KGRA,AnzahlFrei-entdeckt);gotoxy(x,y);};break;
-					case 75:if(x>startx){x--;gotoxy(1,0);printf("%s%c%d%s(noch %3d)",KCYN,x+50,SpielbrettHoehe-(y-starty),KGRA,AnzahlFrei-entdeckt);gotoxy(x,y);};break;
-					case 77:if(x<startx+SpielbrettLaenge-1){x++;gotoxy(1,0);printf("%s%c%d%s(noch %3d)",KCYN,x+50,SpielbrettHoehe-(y-starty),KGRA,AnzahlFrei-entdeckt);gotoxy(x,y);};break;
-					case 72:if(y>starty){y--;gotoxy(1,0);printf("%s%c%d%s(noch %3d)",KCYN,x+50,SpielbrettHoehe-(y-starty),KGRA,AnzahlFrei-entdeckt);gotoxy(x,y);};break;
+					case 80:if(y<starty+Spielbrett-1){y++;gotoxy(1,0);printf("%s%c%d%s(noch %3d)",KCYN,x+50,Spielbrett-(y-starty),KGRA,AnzahlFrei-entdeckt);gotoxy(x,y);};break;
+					case 75:if(x>startx){x--;gotoxy(1,0);printf("%s%c%d%s(noch %3d)",KCYN,x+50,Spielbrett-(y-starty),KGRA,AnzahlFrei-entdeckt);gotoxy(x,y);};break;
+					case 77:if(x<startx+Spielbrett-1){x++;gotoxy(1,0);printf("%s%c%d%s(noch %3d)",KCYN,x+50,Spielbrett-(y-starty),KGRA,AnzahlFrei-entdeckt);gotoxy(x,y);};break;
+					case 72:if(y>starty){y--;gotoxy(1,0);printf("%s%c%d%s(noch %3d)",KCYN,x+50,Spielbrett-(y-starty),KGRA,AnzahlFrei-entdeckt);gotoxy(x,y);};break;
 				}
 			}
 			else 
@@ -477,7 +483,7 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 				{
 					case 119: //W
 							wert=*(MinenArrayPointer+(y-starty)*MAX+(x-startx))+48;
-							if (wert==47) {printf("%s%c",KRED,207);Aufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer);getch();niederlage=1;score=0;}
+							if (wert==47) {printf("%s%c",KRED,207);Aufdecken(startx,starty,Spielbrett,MinenArrayPointer);getch();niederlage=1;score=0;}
 							if (wert>51) {printf("%s%c",KMAG,wert);*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;}
 							if (wert==51) {printf("%s%c",KYEL,wert);*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;}
 							if (wert==50) {printf("%s%c",KGRN,wert);*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;}
@@ -487,13 +493,13 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 								printf("%s ",KGRA);
 								putch(8);
 								*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;
-								NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,x,y,VergleichsArrayPointer);
+								NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,x,y,VergleichsArrayPointer);
 							}
 							*(VergleichsArrayPointer+(y-starty)*MAX+(x-startx))=1;
 							//Array wieder mit 0 füllen und Vergleichsarray überprüfen (entdeckte Felder zählen)
-									for(iy=0,entdeckt=0;iy<SpielbrettHoehe;iy++)
+									for(iy=0,entdeckt=0;iy<Spielbrett;iy++)
 									{
-										for(ix=0;ix<SpielbrettLaenge;ix++)
+										for(ix=0;ix<Spielbrett;ix++)
 										{
 											if(*(VergleichsArrayPointer+(ix)*MAX+(iy))==1) entdeckt++;
 											if(*(MinenArrayPointer+(ix)*MAX+(iy))==-2) *(MinenArrayPointer+(ix)*MAX+(iy))=0;			
@@ -501,22 +507,22 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 									};
 							if(Kontrollansicht)
 								{
-									gotoxy(startx+SpielbrettLaenge+4,starty);
+									gotoxy(startx+Spielbrett+4,starty);
 									ende = clock();
 									time = ((float)(ende - start) / CLOCKS_PER_SEC * 1000) / 1000;
 									printf("%sFRE:%d MIN:%d TIM:%.2f",KYEL,AnzahlFrei,AnzahlMinen,time);
-									gotoxy(startx+SpielbrettLaenge+4,starty+1);
+									gotoxy(startx+Spielbrett+4,starty+1);
 									printf("%sENT:%d WIN:%d LOS:%d",KYEL,entdeckt,sieg,niederlage);
 									gotoxy(x,y);
 								}
 							if(entdeckt==AnzahlFrei && !niederlage) 
 								{
 									ende = clock();
-									SiegesAnimation(startx,starty,SpielbrettLaenge,SpielbrettHoehe);
+									SiegesAnimation(startx,starty,Spielbrett);
 									time = ((float)(ende - start) / CLOCKS_PER_SEC * 1000) / 1000;
 									score = round((1/((time+10)/(AnzahlMinen)))*1000+(AnzahlFrei/1.5));
-									RahmenZeichnen(startx-2,SpielbrettHoehe+6,startx+30,SpielbrettHoehe+11,4);
-									gotoxy(startx-1,SpielbrettHoehe+6);
+									RahmenZeichnen(startx-2,Spielbrett+6,startx+30,Spielbrett+11,4);
+									gotoxy(startx-1,Spielbrett+6);
 									printf("%s\tAnzahl freie Felder : %d \n\t\tAnzahl Minen: %d \n\t\tZeit: %.2f Sekunden\n\t\tScore : %.0f",KYEL,AnzahlFrei,AnzahlMinen,time,score);
 									if(score>highscore && !Kontrollansicht) printf("\n\t\t%s NEUE HIGHSCORE!",KMAG); else printf("\n\t\tAktuelle Highscore : %d", highscore);
 									getch();
@@ -535,11 +541,11 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 				//Kontrollansicht VglArray
 				if(Kontrollansicht)
 				{
-					gotoxy(0,starty+SpielbrettHoehe+SpielbrettHoehe+13);
-					for(ix=0;ix<SpielbrettLaenge;ix++) 
+					gotoxy(0,starty+Spielbrett+Spielbrett+13);
+					for(ix=0;ix<Spielbrett;ix++) 
 					{
 					printf("\n");
-					for(iy=0;iy<SpielbrettHoehe;iy++) 
+					for(iy=0;iy<Spielbrett;iy++) 
 					{
 						printf("%s%2d,%2d%s[%2d]",KGRA,iy+startx,ix+starty,KYEL,*(VergleichsArrayPointer+ix*MAX+iy));
 					}
@@ -552,13 +558,13 @@ float abfrageCursorTaste(int startx,int starty,int SpielbrettLaenge,int Spielbre
 	return score;
 }
 
-void Aufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,int *MinenArrayPointer)
+void Aufdecken(int startx,int starty,int Spielbrett,int *MinenArrayPointer)
 {
 	int ix,iy;
 	char Text[15]={ "V E R L O R E N" };
-	for(ix=0;ix<SpielbrettLaenge;ix++)
+	for(ix=0;ix<Spielbrett;ix++)
 	{
-		for(iy=0;iy<SpielbrettHoehe;iy++)
+		for(iy=0;iy<Spielbrett;iy++)
 		{
 				gotoxy(startx+ix,starty+iy);
 				if(*(MinenArrayPointer+iy*MAX+ix)==-1) printf("%s%c",KRED,207);
@@ -568,14 +574,14 @@ void Aufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,in
 	}
 	for(ix=0;ix<15;ix++)
 	{
-		gotoxy(startx-1+ix,SpielbrettHoehe+4);
+		gotoxy(startx-1+ix,Spielbrett+4);
 		printf("%s%c",KRED,Text[ix]);
 		delay(50);
 	}
 	gotoxy(startx,starty);
 }
 
-void NullAufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoehe,int *MinenArrayPointer,int tmpx,int tmpy,int *VergleichsArrayPointer)
+void NullAufdecken(int startx,int starty,int Spielbrett,int *MinenArrayPointer,int tmpx,int tmpy,int *VergleichsArrayPointer)
 {
 		char wert,x1=0,x2=0,x3=0,x4=0,x5=0,x6=0,x7=0,x8=0,aufgedeckt=0;
 		int ix,iy,ivglx,ivgly;
@@ -586,7 +592,7 @@ void NullAufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoeh
 				if(*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))>=0)
 					{
 					wert=*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))+48;
-					if(tmpx-startx+ivglx>=0 && tmpy-starty+ivgly>=0 && tmpy-starty+ivgly<SpielbrettHoehe && tmpx-startx+ivglx<SpielbrettLaenge)
+					if(tmpx-startx+ivglx>=0 && tmpy-starty+ivgly>=0 && tmpy-starty+ivgly<Spielbrett && tmpx-startx+ivglx<Spielbrett)
 					{
 						gotoxy(tmpx+ivglx,tmpy+ivgly);
 						if (wert==47) {printf("%s%c",KRED,207);*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;}
@@ -598,14 +604,14 @@ void NullAufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoeh
 						{
 							
 							printf("%s ",KGRA);
-							if(x1==0) {x1=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
-							if(x2==0) {x2=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
-							if(x3==0) {x3=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
-							if(x4==0) {x4=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
-							if(x5==0) {x5=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
-							if(x6==0) {x6=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
-							if(x7==0) {x7=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
-							if(x8==0) {x8=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,SpielbrettLaenge,SpielbrettHoehe,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
+							if(x1==0) {x1=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
+							if(x2==0) {x2=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
+							if(x3==0) {x3=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
+							if(x4==0) {x4=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
+							if(x5==0) {x5=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
+							if(x6==0) {x6=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
+							if(x7==0) {x7=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
+							if(x8==0) {x8=1;*(MinenArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=-2;*(VergleichsArrayPointer+(tmpy-starty+ivgly)*MAX+(tmpx-startx+ivglx))=1;NullAufdecken(startx,starty,Spielbrett,MinenArrayPointer,tmpx+ivglx,tmpy+ivgly,VergleichsArrayPointer);};
 						}
 					}
 					}
@@ -614,23 +620,16 @@ void NullAufdecken(int startx,int starty,int SpielbrettLaenge,int SpielbrettHoeh
 		gotoxy(x,y);
 }
 
-void SiegesAnimation(startx,starty,SpielbrettLaenge,SpielbrettHoehe)
+void SiegesAnimation(startx,starty,Spielbrett)
 {
 	char i,iy,f=0,text[42]={ "G E W O N N E N ! HERZLICHEN GLUECKWUNSCH" };
 	for(i=0;i<42;i++,f++)
 	{ 
 	if(f>8) f=0;
-	SchachbrettZeichnen(startx,starty,startx+SpielbrettLaenge,starty+SpielbrettHoehe,f,1);
-	gotoxy(startx-1+i,SpielbrettHoehe+4);
+	SchachbrettZeichnen(startx,starty,startx+Spielbrett,starty+Spielbrett,f,1);
+	gotoxy(startx-1+i,Spielbrett+4);
 	printf("%s%c",KGRN,text[i]);
 	delay(100);
 	}
 	gotoxy(startx,starty);
 }
-
-
-//
-//DWORD WINAPI GetCurrentDirectory(
-//  _In_  DWORD  nBufferLength,
-//  _Out_ LPTSTR lpBuffer
-//);
