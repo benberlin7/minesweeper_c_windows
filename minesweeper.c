@@ -45,16 +45,16 @@ int x,y;
 
 int main(void)
 {
-	system("cls");
-	itwIntro(0,11);
-	delay(1000);
-	system("cls");
-	introEichhoernchen (0,7);
-	delay(1000);
+//	system("cls");
+//	itwIntro(0,11);
+//	delay(1000);
+//	system("cls");
+//	introEichhoernchen (0,7);
+//	delay(1000);
 	
 	char Eingabe,tmp,Kontrollansicht=0,level=2,ErsteNull=1;
 	int i,z;
-	int Spielbrett=12,schwierigkeit=6,highscore=0;
+	int Spielbrett=8,schwierigkeit=6,highscore=0;
 	int *MinenArrayPointer;
 	int *VergleichsArrayPointer;
 	int VergleichsArray[MAX][MAX];
